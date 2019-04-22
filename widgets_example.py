@@ -153,12 +153,8 @@ class WidgetGallery(QDialog):
         tab2 = QWidget()
         textEdit = QTextEdit()
 
-        textEdit.setPlainText("Twinkle, twinkle, little star,\n"
-                              "How I wonder what you are.\n" 
-                              "Up above the world so high,\n"
-                              "Like a diamond in the sky.\n"
-                              "Twinkle, twinkle, little star,\n" 
-                              "How I wonder what you are!\n")
+        line = ser.readline().decode("utf-8")
+        textEdit.setPlainText(line)
 
         tab2hbox = QHBoxLayout()
         tab2hbox.setContentsMargins(5, 5, 5, 5)
@@ -214,9 +210,22 @@ class WidgetGallery(QDialog):
 
 if __name__ == '__main__':
 
+    print('HELLO')
+
     import sys
+
+    import serial
+
+    # serial test
+    ser = serial.Serial('COM6')
+    print(ser.name)
+
+    # ser.write(b'4')
 
     app = QApplication(sys.argv)
     gallery = WidgetGallery()
     gallery.show()
     sys.exit(app.exec_()) 
+
+    ser.close()
+
