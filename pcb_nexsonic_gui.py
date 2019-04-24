@@ -34,17 +34,17 @@ class WidgetGallery(QDialog):
         super(WidgetGallery, self).__init__(parent)
 
         # freq, dac, duty labels
-        self.freqLabel = QLabel('56000')
-        self.dacLabel = QLabel('1600')
-        self.dutyLabel = QLabel('50')
+        self.freqLabel = QLabel('')
+        self.dacLabel = QLabel('')
+        self.dutyLabel = QLabel('')
 
         # calculated labels
-        self.iadcLabel = QLabel('temp')
-        self.vadcLabel = QLabel('temp')
-        self.voltLabel = QLabel('temp')
-        self.currLabel = QLabel('temp')
-        self.powLabel = QLabel('temp')
-        self.impLabel = QLabel('temp')
+        self.iadcLabel = QLabel('')
+        self.vadcLabel = QLabel('')
+        self.voltLabel = QLabel('')
+        self.currLabel = QLabel('')
+        self.powLabel = QLabel('')
+        self.impLabel = QLabel('')
 
         self.originalPalette = QApplication.palette()
 
@@ -83,45 +83,50 @@ class WidgetGallery(QDialog):
 
         tabWidget = QTabWidget()
 
+        # settings boxes height
+        self.topLeftGroupBox.setFixedHeight(150)
+        self.topRightGroupBox.setFixedHeight(150)
+        self.bottomLeftGroupBox.setFixedHeight(150)
+        self.topLeftGroupBox.setFixedWidth(300)
+        self.topRightGroupBox.setFixedWidth(300)
+        self.bottomLeftGroupBox.setFixedWidth(300)
+
         # settings tab
         settingsTab = QWidget()
+        settingsMainLayout = QVBoxLayout()
         settingsGrid = QGridLayout()
-        settingsTab.setLayout(settingsGrid)
+        updateSettingsValsButton = QPushButton('Update Values')
+        updateSettingsValsButton.clicked.connect(self.updateSettingsVals)
+        updateSettingsValsButton.setFixedWidth(100)
+        settingsMainLayout.addWidget(updateSettingsValsButton)
         settingsGrid.addWidget(self.topLeftGroupBox, 1, 0)
         settingsGrid.addWidget(self.topRightGroupBox, 1, 1)
         settingsGrid.addWidget(self.bottomLeftGroupBox, 2, 0)
-        settingsGrid.setRowStretch(1, 1)
-        settingsGrid.setRowStretch(2, 1)
-        settingsGrid.setColumnStretch(0, 1)
-        settingsGrid.setColumnStretch(1, 1)
+        settingsMainLayout.addLayout(settingsGrid)
+        settingsTab.setLayout(settingsMainLayout)
 
         # main tab
         mainTab = QWidget()
         mainvbox = QVBoxLayout()
         mainvbox.addWidget(self.ADCReadingBox)
+        mainTab.setFixedHeight(140)
         mainTab.setLayout(mainvbox)
 
+        # add tabs to tab widget
         tabWidget.addTab(settingsTab, 'Settings')
         tabWidget.addTab(mainTab, 'Main')
 
+        ## main layout
         mainLayout = QVBoxLayout()
         mainLayout.addWidget(tabWidget)
 
-        # mainLayout = QGridLayout()
-        # mainLayout.addLayout(topLayout, 0, 0, 1, 2)
-        # mainLayout.addWidget(self.topLeftGroupBox, 1, 0)
-        # mainLayout.addWidget(self.topRightGroupBox, 1, 1)
-        # mainLayout.addWidget(self.bottomLeftGroupBox, 2, 0)
-        # mainLayout.addWidget(self.bottomRightGroupBox, 2, 1)
-        # # mainLayout.addWidget(self.progressBar, 3, 0, 1, 2)
-        # mainLayout.setRowStretch(1, 1)
-        # mainLayout.setRowStretch(2, 1)
-        # mainLayout.setColumnStretch(0, 1)
-        # mainLayout.setColumnStretch(1, 1)
-
+        # set main layout
         self.setLayout(mainLayout)
 
+        # set window title
         self.setWindowTitle("Nexsonic UTDS")
+
+        # set style
         self.changeStyle('Windows')
 
     def changeStyle(self, styleName):
@@ -154,7 +159,7 @@ class WidgetGallery(QDialog):
         layout.addWidget(decButton)
         layout.addWidget(QLabel('Frequency (Hz):'))
         layout.addWidget(self.freqLabel)
-        layout.addStretch(1)
+        # layout.addStretch(1)
         self.topLeftGroupBox.setLayout(layout)    
 
     def createTopRightGroupBox(self):
@@ -171,7 +176,7 @@ class WidgetGallery(QDialog):
         layout.addWidget(decButton)
         layout.addWidget(QLabel('Duty Cycle (%):'))
         layout.addWidget(self.dutyLabel)
-        layout.addStretch(1) 
+        # layout.addStretch(1) 
         self.topRightGroupBox.setLayout(layout)
 
     def createBottomLeftGroupBox(self):
@@ -189,7 +194,7 @@ class WidgetGallery(QDialog):
         layout.addWidget(QLabel('DAC (mv):'))
         layout.addWidget(self.dacLabel)
         layout.addWidget
-        layout.addStretch(1) 
+        # layout.addStretch(1) 
         self.bottomLeftGroupBox.setLayout(layout)
 
     def createADCReadingBox(self):
@@ -202,39 +207,41 @@ class WidgetGallery(QDialog):
         layout.addWidget(calcButton)
         calcButton.clicked.connect(self.getADCReading)
 
+        readingsLayout = QHBoxLayout()
+
         vadcLabelLayout = QVBoxLayout()
-        vadcLabelLayout.addWidget(QLabel('Raw Voltage ADC: '))
+        vadcLabelLayout.addWidget(QLabel('Raw Voltage ADC:'))
         vadcLabelLayout.addWidget(self.vadcLabel)
 
         iadcLabelLayout = QVBoxLayout()
-        iadcLabelLayout.addWidget(QLabel('Raw Current ADC: '))
+        iadcLabelLayout.addWidget(QLabel('Raw Current ADC:'))
         iadcLabelLayout.addWidget(self.iadcLabel)
 
         voltLabelLayout = QVBoxLayout()
-        voltLabelLayout.addWidget(QLabel('Voltage:             '))
+        voltLabelLayout.addWidget(QLabel('Voltage (mV):'))
         voltLabelLayout.addWidget(self.voltLabel)
 
         currLabelLayout = QVBoxLayout()
-        currLabelLayout.addWidget(QLabel('Current:             '))
+        currLabelLayout.addWidget(QLabel('Current (mA):'))
         currLabelLayout.addWidget(self.currLabel)
 
         powLabelLayout = QVBoxLayout()
-        powLabelLayout.addWidget(QLabel('Power:                '))
+        powLabelLayout.addWidget(QLabel('Power (mW):'))
         powLabelLayout.addWidget(self.powLabel)
 
         impLabelLayout = QVBoxLayout()
-        impLabelLayout.addWidget(QLabel('Impedance:          '))
+        impLabelLayout.addWidget(QLabel('Impedance (Ohms):'))
         impLabelLayout.addWidget(self.impLabel)
 
-        layout.addLayout(vadcLabelLayout)
-        layout.addLayout(iadcLabelLayout)
-        layout.addLayout(voltLabelLayout)
-        layout.addLayout(currLabelLayout)
-        layout.addLayout(powLabelLayout)
-        layout.addLayout(impLabelLayout)
+        readingsLayout.addLayout(vadcLabelLayout)
+        readingsLayout.addLayout(iadcLabelLayout)
+        readingsLayout.addLayout(voltLabelLayout)
+        readingsLayout.addLayout(currLabelLayout)
+        readingsLayout.addLayout(powLabelLayout)
+        readingsLayout.addLayout(impLabelLayout)
 
-        layout.addWidget
-        layout.addStretch(1) 
+        layout.addLayout(readingsLayout)
+        # layout.addStretch(1) 
         self.ADCReadingBox.setLayout(layout)
 
     def createProgressBar(self):
@@ -313,6 +320,15 @@ class WidgetGallery(QDialog):
         self.powLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
+    @pyqtSlot()
+    def updateSettingsVals(self):
+        print("updating settings values")
+        ser = serial.Serial('COM14')
+        ser.write(b'6')  # 5 = read adcs
+        self.freqLabel.setText(ser.readline().decode("utf-8"))
+        self.dutyLabel.setText(ser.readline().decode("utf-8"))
+        self.dacLabel.setText(ser.readline().decode("utf-8"))
+        ser.close()
 
 if __name__ == '__main__':
 
