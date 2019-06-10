@@ -34,10 +34,10 @@ class WidgetGallery(QDialog):
     def __init__(self, parent=None):
         super(WidgetGallery, self).__init__(parent)
 
-        # freq, dac, duty labels
+        # freq, hrfreq, dac labels
         self.freqLabel = QLabel('')
+        self.hrfreqLabel = QLabel('')
         self.dacLabel = QLabel('')
-        self.dutyLabel = QLabel('')
 
         # calculated labels
         self.iadcLabel = QLabel('')
@@ -46,6 +46,14 @@ class WidgetGallery(QDialog):
         self.currLabel = QLabel('')
         self.powLabel = QLabel('')
         self.impLabel = QLabel('')
+
+        #  maxpower label for sweeping
+        self.maxPowerLabel = QLabel('')
+        self.maxFreqlabel = QLabel('')
+
+        # freq edit line
+        self.freqEditLine = QLineEdit()
+        self.freqEditLine.resize(100, 32)
 
         # sweep table
         self.sweepTable = QTableWidget()
@@ -64,7 +72,7 @@ class WidgetGallery(QDialog):
         disableWidgetsCheckBox = QCheckBox("&Disable widgets")
 
         self.createFrequencyGroupBox()
-        # self.createDutyCycleGroupBox()
+        self.createHrFrequencyGroupBox()
         self.createDacGroupBox()
         self.createAdcGroupBox()
         self.createSweepGroupBox()
@@ -73,7 +81,6 @@ class WidgetGallery(QDialog):
         styleComboBox.activated[str].connect(self.changeStyle)
         self.useStylePaletteCheckBox.toggled.connect(self.changePalette)
         disableWidgetsCheckBox.toggled.connect(self.frequencyGroupBox.setDisabled)
-        # disableWidgetsCheckBox.toggled.connect(self.dutyCycleGroupBox.setDisabled)
         disableWidgetsCheckBox.toggled.connect(self.dacGroupBox.setDisabled)
         disableWidgetsCheckBox.toggled.connect(self.adcGroupBox.setDisabled)
 
@@ -89,25 +96,36 @@ class WidgetGallery(QDialog):
         tabWidget = QTabWidget()
 
         # settings boxes height
-        self.frequencyGroupBox.setFixedHeight(160)
-        # self.dutyCycleGroupBox.setFixedHeight(140)
-        self.dacGroupBox.setFixedHeight(160)
+        self.frequencyGroupBox.setFixedHeight(180)
+        self.hrFrequencyGroupBox.setFixedHeight(180)
+        self.dacGroupBox.setFixedHeight(180)
         self.adcGroupBox.setFixedHeight(326)
         self.frequencyGroupBox.setFixedWidth(200)
-        # self.dutyCycleGroupBox.setFixedWidth(300)
         self.dacGroupBox.setFixedWidth(200)
         self.adcGroupBox.setFixedWidth(200)
 
         # main settings layout
         mainSettingsVLayout = QVBoxLayout()
-        # add button on top
+        # create top layout
+        topLayout = QHBoxLayout()
+        # add button to top layout
         updateSettingsValsButton = QPushButton('Update Values')
         updateSettingsValsButton.clicked.connect(self.updateSettingsVals)
         updateSettingsValsButton.setFixedWidth(100)
-        mainSettingsVLayout.addWidget(updateSettingsValsButton)
+        topLayout.addWidget(updateSettingsValsButton)
+        # add power track check box to top layout
+        powerTrackingCheckBox = QPushButton("Power Tracking")
+        powerTrackingCheckBox.setFixedWidth(100)
+        # powerTrackingCheckBox.setChecked(False)
+        powerTrackingCheckBox.clicked.connect(self.readPowerTracking)
+        # powerTrackingCheckBox.toggled.connect(self.readPowerTracking)
+        topLayout.addWidget(powerTrackingCheckBox)
+        # add top layout to main vertical layout
+        mainSettingsVLayout.addLayout(topLayout)
         # create vertical layout for freq,duty,dac boxes
         freqDutyDacVLayout = QVBoxLayout()
         freqDutyDacVLayout.addWidget(self.frequencyGroupBox)
+        freqDutyDacVLayout.addWidget(self.hrFrequencyGroupBox)
         # freqDutyDacVLayout.addWidget(self.dutyCycleGroupBox)
         freqDutyDacVLayout.addWidget(self.dacGroupBox)
         # create horizontal layout
@@ -146,7 +164,7 @@ class WidgetGallery(QDialog):
         self.setLayout(mainLayout)
 
         # set window title
-        self.setWindowTitle("Nexsonic UTDS")
+        self.setWindowTitle("Nexsonic")
 
         # set style
         self.changeStyle('WindowsVista')
@@ -166,23 +184,45 @@ class WidgetGallery(QDialog):
         maxVal = self.progressBar.maximum()
         self.progressBar.setValue(curVal + (maxVal - curVal) / 100)
 
+    def createHrFrequencyGroupBox(self):
+        self.hrFrequencyGroupBox = QGroupBox("HR Frequency")
+
+        # buttons
+        incButton = QPushButton('Increase', self)
+        decButton = QPushButton('Decrease', self)
+        incButton.clicked.connect(self.incHrFreq)
+        decButton.clicked.connect(self.decHrFreq)
+
+        # layout
+        layout = QVBoxLayout()
+        layout.addWidget(incButton)
+        layout.addWidget(decButton)
+        layout.addWidget(QLabel('PeriodFine:'))
+        layout.addWidget(self.hrfreqLabel)
+        # layout.addStretch(1)
+        self.hrFrequencyGroupBox.setLayout(layout)
+
     def createFrequencyGroupBox(self):
         self.frequencyGroupBox = QGroupBox("Frequency")
 
         # buttons
         incButton = QPushButton('Increase', self)
         decButton = QPushButton('Decrease', self)
+        setFreqButton = QPushButton('Set', self)
+        setFreqButton.clicked.connect(self.setFreq)
         incButton.clicked.connect(self.incFreq)
         decButton.clicked.connect(self.decFreq)
 
         # layout
         layout = QVBoxLayout()
+        layout.addWidget(self.freqEditLine)
+        layout.addWidget(setFreqButton)
         layout.addWidget(incButton)
         layout.addWidget(decButton)
         layout.addWidget(QLabel('Frequency (Hz):'))
         layout.addWidget(self.freqLabel)
         # layout.addStretch(1)
-        self.frequencyGroupBox.setLayout(layout)    
+        self.frequencyGroupBox.setLayout(layout)
 
     # def createDutyCycleGroupBox(self):
     #     self.dutyCycleGroupBox = QGroupBox("Duty Cycle")
@@ -248,11 +288,11 @@ class WidgetGallery(QDialog):
         currLabelLayout.addWidget(self.currLabel)
 
         powLabelLayout = QVBoxLayout()
-        powLabelLayout.addWidget(QLabel('Power (W):'))
+        powLabelLayout.addWidget(QLabel('Power (mW):'))
         powLabelLayout.addWidget(self.powLabel)
 
         impLabelLayout = QVBoxLayout()
-        impLabelLayout.addWidget(QLabel('Impedance (Ohms):'))
+        impLabelLayout.addWidget(QLabel('Impedance (mOhms):'))
         impLabelLayout.addWidget(self.impLabel)
 
         readingsLayout.addLayout(vadcLabelLayout)
@@ -273,45 +313,46 @@ class WidgetGallery(QDialog):
         layout = QVBoxLayout()
 
         # readingsWidget = QtWidgets()
-        readingsLayout = QHBoxLayout()
+        # readingsLayout = QHBoxLayout()
 
-        vadcLabelLayout = QVBoxLayout()
-        vadcLabelLayout.addWidget(QLabel('Raw Voltage ADC:'))
-        vadcLabelLayout.addWidget(self.vadcLabel)
-        iadcLabelLayout = QVBoxLayout()
-        iadcLabelLayout.addWidget(QLabel('Raw Current ADC:'))
-        iadcLabelLayout.addWidget(self.iadcLabel)
-        voltLabelLayout = QVBoxLayout()
-        voltLabelLayout.addWidget(QLabel('Voltage (mV):'))
-        voltLabelLayout.addWidget(self.voltLabel)
-        currLabelLayout = QVBoxLayout()
-        currLabelLayout.addWidget(QLabel('Current (mA):'))
-        currLabelLayout.addWidget(self.currLabel)
-        powLabelLayout = QVBoxLayout()
-        powLabelLayout.addWidget(QLabel('Power (W):'))
-        powLabelLayout.addWidget(self.powLabel)
-        impLabelLayout = QVBoxLayout()
-        impLabelLayout.addWidget(QLabel('Impedance (Ohms):'))
-        impLabelLayout.addWidget(self.impLabel)
-        readingsLayout.addLayout(vadcLabelLayout)
-        readingsLayout.addLayout(iadcLabelLayout)
-        readingsLayout.addLayout(voltLabelLayout)
-        readingsLayout.addLayout(currLabelLayout)
-        readingsLayout.addLayout(powLabelLayout)
-        readingsLayout.addLayout(impLabelLayout)
+        # vadcLabelLayout = QVBoxLayout()
+        # vadcLabelLayout.addWidget(QLabel('Raw Voltage ADC:'))
+        # vadcLabelLayout.addWidget(self.vadcLabel)
+        # iadcLabelLayout = QVBoxLayout()
+        # iadcLabelLayout.addWidget(QLabel('Raw Current ADC:'))
+        # iadcLabelLayout.addWidget(self.iadcLabel)
+        # voltLabelLayout = QVBoxLayout()
+        # voltLabelLayout.addWidget(QLabel('Voltage (mV):'))
+        # voltLabelLayout.addWidget(self.voltLabel)
+        # currLabelLayout = QVBoxLayout()
+        # currLabelLayout.addWidget(QLabel('Current (mA):'))
+        # currLabelLayout.addWidget(self.currLabel)
+        # powLabelLayout = QVBoxLayout()
+        # powLabelLayout.addWidget(QLabel('Power (W):'))
+        # powLabelLayout.addWidget(self.powLabel)
+        # impLabelLayout = QVBoxLayout()
+        # impLabelLayout.addWidget(QLabel('Impedance (Ohms):'))
+        # impLabelLayout.addWidget(self.impLabel)
+        # readingsLayout.addLayout(vadcLabelLayout)
+        # readingsLayout.addLayout(iadcLabelLayout)
+        # readingsLayout.addLayout(voltLabelLayout)
+        # readingsLayout.addLayout(currLabelLayout)
+        # readingsLayout.addLayout(powLabelLayout)
+        # readingsLayout.addLayout(impLabelLayout)
 
         # readingsWidget.addLayout(readingsLayout)
 
         # setup table
         self.sweepTable.setRowCount(71);
         self.sweepTable.setColumnCount(7)
-        self.sweepTable.setItem(0,0, QTableWidgetItem("Freq (Hz)"))
-        self.sweepTable.setItem(0,1, QTableWidgetItem("Voltage ADC"))
-        self.sweepTable.setItem(0,2, QTableWidgetItem("Current ADC"))
-        self.sweepTable.setItem(0,3, QTableWidgetItem("Voltage (mV)"))
-        self.sweepTable.setItem(0,4, QTableWidgetItem("Current (mA)"))
-        self.sweepTable.setItem(0,5, QTableWidgetItem("Z (Ohms)"))
-        self.sweepTable.setItem(0,6, QTableWidgetItem("Power (W)"))
+        self.sweepTable.setHorizontalHeaderLabels(['Freq (Hz)', 'Voltage ADC', 'Current ADC', 'Voltage (mV)', 'Current (mA)', 'Z (mOhms)', 'Power (mW)'])
+        # self.sweepTable.setItem(0,0, QTableWidgetItem("Freq (Hz)"))
+        # self.sweepTable.setItem(0,1, QTableWidgetItem("Voltage ADC"))
+        # self.sweepTable.setItem(0,2, QTableWidgetItem("Current ADC"))
+        # self.sweepTable.setItem(0,3, QTableWidgetItem("Voltage (mV)"))
+        # self.sweepTable.setItem(0,4, QTableWidgetItem("Current (mA)"))
+        # self.sweepTable.setItem(0,5, QTableWidgetItem("Z (mOhms)"))
+        # self.sweepTable.setItem(0,6, QTableWidgetItem("Power (mW)"))
 
         # buttons
         sweepButton = QPushButton('Sweep', self)
@@ -323,6 +364,10 @@ class WidgetGallery(QDialog):
         # layout.addLayout(readingsLayout)
         layout.addWidget(QLabel('Table of readings:'))
         layout.addWidget(self.sweepTable)
+        layout.addWidget(QLabel('Maximum Power (mW):'))
+        layout.addWidget(self.maxPowerLabel)
+        layout.addWidget(QLabel('Maximum Frequency (Hz):'))
+        layout.addWidget(self.maxFreqlabel)
 
         # set box layout
         self.sweepGroupBox.setLayout(layout)
@@ -376,9 +421,46 @@ class WidgetGallery(QDialog):
         ser = serial.Serial('COM14')
         ser.write(b'2')  # 2 = freq change
         ser.write(b'2') # 2 = increase freq
-        self.freqLabel.setText(ser.readline().decode("utf-8"))
+        freqtext = ser.readline().decode("utf-8")
+        print(freqtext)
+        self.freqLabel.setText(freqtext)
         # receive adc data as well
         self.vadcLabel.setText(ser.readline().decode("utf-8"))
+        self.iadcLabel.setText(ser.readline().decode("utf-8"))
+        self.voltLabel.setText(ser.readline().decode("utf-8"))
+        self.currLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
+        self.powLabel.setText(ser.readline().decode("utf-8"))
+        ser.close()
+
+    @pyqtSlot()
+    def decHrFreq(self):
+        print("decrease hr")
+        ser = serial.Serial('COM14')
+        ser.write(b'9')  # 9 = hr freq change
+        ser.write(b'1') # 1 = decrease freq
+        self.freqLabel.setText(ser.readline().decode("utf-8"))
+        self.hrfreqLabel.setText(ser.readline().decode("utf-8"))
+        # receive adc data as well
+        self.vadcLabel.setText(ser.readline().decode("utf-8"))
+        self.iadcLabel.setText(ser.readline().decode("utf-8"))
+        self.voltLabel.setText(ser.readline().decode("utf-8"))
+        self.currLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
+        self.powLabel.setText(ser.readline().decode("utf-8"))
+        ser.close()
+
+    @pyqtSlot()
+    def incHrFreq(self):
+        print("increase hr")
+        ser = serial.Serial('COM14')
+        ser.write(b'9')  # 9 = hr freq change
+        ser.write(b'2') # 2 = increase freq
+        self.freqLabel.setText(ser.readline().decode("utf-8"))
+        self.hrfreqLabel.setText(ser.readline().decode("utf-8"))
+        # receive adc data as well
+        self.vadcLabel.setText(ser.readline().decode("utf-8"))
+        print('got this')
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
@@ -437,7 +519,6 @@ class WidgetGallery(QDialog):
         ser = serial.Serial('COM14')
         ser.write(b'6')  # 6 = update settings vals
         self.freqLabel.setText(ser.readline().decode("utf-8"))
-        self.dutyLabel.setText(ser.readline().decode("utf-8"))
         self.dacLabel.setText(ser.readline().decode("utf-8"))
         # receive adc data as well
         self.vadcLabel.setText(ser.readline().decode("utf-8"))
@@ -455,14 +536,60 @@ class WidgetGallery(QDialog):
 
         ser.write(b'4')  # 4 = sweep
 
-        rowCnt = 1
+        rowCnt = 0
         colCnt = 0
+
+        # clear table
+        for i in range(70):
+            print("clearing table")
+            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(""))
+            colCnt = colCnt + 1
+            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(""))
+            colCnt = colCnt + 1
+            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(""))
+            colCnt = colCnt + 1
+            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(""))
+            colCnt = colCnt + 1
+            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(""))
+            colCnt = colCnt + 1
+            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(""))
+            colCnt = colCnt + 1
+            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(""))
+            colCnt = colCnt + 1
+            # reset column to write back to column 0
+            colCnt = 0
+            # increment rowCnt to write into next row
+            rowCnt = rowCnt + 1
+
+            app.processEvents()
+
+        # clear max power and freq label
+        self.maxPowerLabel.setText('')
+        self.maxFreqlabel.setText('')
+
+        # reset row count and column count
+        rowCnt = 0
+        colCnt = 0
+
+        # read the first false sent values
+        ser.readline().decode("utf-8")
+        ser.readline().decode("utf-8")
+        ser.readline().decode("utf-8")
+        ser.readline().decode("utf-8")
+        ser.readline().decode("utf-8")
+        ser.readline().decode("utf-8")
+        ser.readline().decode("utf-8")
+
+        maxPower = 0
+        maxFreq = ''
 
         # if(ser.readline().decode("utf-8") != "ENDSWP"):
         for i in range(70):
 
+            print("filling table")
             # set freq
-            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(ser.readline().decode("utf-8")))
+            freq = ser.readline().decode("utf-8")
+            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(freq))
             # increase column count to write into next column
             colCnt = colCnt + 1
 
@@ -472,42 +599,51 @@ class WidgetGallery(QDialog):
             vadcStr = ser.readline().decode("utf-8")
             vadcStr = vadcStr[2:7]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(vadcStr))
-            self.vadcLabel.setText(vadcStr)
+            # self.vadcLabel.setText(vadcStr)
             # increase column count to write into next column
             colCnt = colCnt + 1
 
             # set iadc
             iadc = ser.readline().decode("utf-8")
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(iadc))
-            self.iadcLabel.setText(iadc)
+            # self.iadcLabel.setText(iadc)
             # increase column count to write into next column
             colCnt = colCnt + 1
 
             # set voltage
             volts = ser.readline().decode("utf-8")
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(volts))
-            self.voltLabel.setText(volts)
+            # self.voltLabel.setText(volts)
             # increase column count to write into next column
             colCnt = colCnt + 1
 
             # set current
             curr = ser.readline().decode("utf-8")
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(curr))
-            self.currLabel.setText(curr)
+            # self.currLabel.setText(curr)
             # increase column count to write into next column
             colCnt = colCnt + 1
 
             # set impedance
             imp = ser.readline().decode("utf-8")
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(imp))
-            self.impLabel.setText(imp)
+            # self.impLabel.setText(imp)
             # increase column count to write into next column
             colCnt = colCnt + 1
 
             # set power
             power = ser.readline().decode("utf-8")
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(power))
-            self.powLabel.setText(power)
+            powerAtColStr = power[2:7]
+            FreqAtColStr = freq[2:7]
+            powerInt = int(powerAtColStr)
+            if powerInt > maxPower:
+                maxPower = powerInt
+                maxFreq = FreqAtColStr
+
+            print(powerAtColStr)
+            print(powerInt)
+            # self.powLabel.setText(power)
             # increase column count to write into next column
             colCnt = colCnt + 1
 
@@ -518,7 +654,26 @@ class WidgetGallery(QDialog):
 
             app.processEvents()
 
+        print(maxPower)
+        self.maxPowerLabel.setText(str(maxPower))
+        self.maxFreqlabel.setText(maxFreq)
         ser.close()
+
+        # maxPower = 0
+        # for i in range(70):
+
+        #     powerAtColStr = self.sweepTable.itemAt(i,2).text()
+        #     powerAtCol = int(powerAtColStr[0:5])
+        #     print(powerAtColStr)
+
+        #     if powerAtCol > maxPower:
+        #         maxPower = powerAtCol
+
+        # print(maxPower)
+
+
+
+
 
     # https://stackoverflow.com/questions/21562485/pyqt-qtabwidget-currentchanged
     @pyqtSlot()  
@@ -532,8 +687,53 @@ class WidgetGallery(QDialog):
         self.impLabel.setText('')
         self.powLabel.setText('')
         self.freqLabel.setText('')
-        self.dutyLabel.setText('')
         self.dacLabel.setText('')
+
+    @pyqtSlot()
+    def readPowerTracking(self):
+        print("reading power tracking values")
+        ser = serial.Serial('COM14')
+        ser.write(b'7')  # 7 = power tracking
+
+        for i in range(200):
+            freq = ser.readline().decode("utf-8")
+            print("freq: " + freq)
+            self.freqLabel.setText(freq)
+            self.dacLabel.setText(ser.readline().decode("utf-8"))
+            # receive adc data as well
+            self.vadcLabel.setText(ser.readline().decode("utf-8"))
+            self.iadcLabel.setText(ser.readline().decode("utf-8"))
+            self.voltLabel.setText(ser.readline().decode("utf-8"))
+            self.currLabel.setText(ser.readline().decode("utf-8"))
+            self.impLabel.setText(ser.readline().decode("utf-8"))
+            power = ser.readline().decode("utf-8")
+            print("power: " + power)
+            self.powLabel.setText(power)
+            app.processEvents()
+
+        ser.close()
+
+    @pyqtSlot()
+    def setFreq(self):
+        ser = serial.Serial('COM14')
+        ser.write(b'8')  # 8 = read and set freq command
+
+        # get text from edit line
+        freqStr = self.freqEditLine.text()
+
+        # check if string length is valid
+        if len(freqStr) == 5:
+            # write freq char by char
+            ser.write(freqStr[0].encode())
+            ser.write(freqStr[1].encode())
+            ser.write(freqStr[2].encode())
+            ser.write(freqStr[3].encode())
+            ser.write(freqStr[4].encode())
+
+        # read and update freq label
+        self.freqLabel.setText(ser.readline().decode("utf-8"))
+
+        ser.close()
 
 if __name__ == '__main__':
 
