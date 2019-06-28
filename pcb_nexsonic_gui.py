@@ -120,6 +120,21 @@ class WidgetGallery(QDialog):
         powerTrackingCheckBox.clicked.connect(self.readPowerTracking)
         # powerTrackingCheckBox.toggled.connect(self.readPowerTracking)
         topLayout.addWidget(powerTrackingCheckBox)
+
+        # add turnOffPwmsButton to top layout
+        turnOffPwmsButton = QPushButton("Turn off PWMs")
+        turnOffPwmsButton.setFixedWidth(100)
+        # powerTrackingCheckBox.setChecked(False)
+        turnOffPwmsButton.clicked.connect(self.turnOffPwms)
+        topLayout.addWidget(turnOffPwmsButton)
+
+        # add turnOnPwmsButton to top layout
+        turnOnPwmsButton = QPushButton("Turn on PWMs")
+        turnOnPwmsButton.setFixedWidth(100)
+        # powerTrackingCheckBox.setChecked(False)
+        turnOnPwmsButton.clicked.connect(self.turnOnPwms)
+        topLayout.addWidget(turnOnPwmsButton)
+
         # add top layout to main vertical layout
         mainSettingsVLayout.addLayout(topLayout)
         # create vertical layout for freq,duty,dac boxes
@@ -343,7 +358,7 @@ class WidgetGallery(QDialog):
         # readingsWidget.addLayout(readingsLayout)
 
         # setup table
-        self.sweepTable.setRowCount(71);
+        self.sweepTable.setRowCount(600);
         self.sweepTable.setColumnCount(7)
         self.sweepTable.setHorizontalHeaderLabels(['Freq (Hz)', 'Voltage ADC', 'Current ADC', 'Voltage (mV)', 'Current (mA)', 'Z (mOhms)', 'Power (mW)'])
         # self.sweepTable.setItem(0,0, QTableWidgetItem("Freq (Hz)"))
@@ -380,24 +395,6 @@ class WidgetGallery(QDialog):
         timer = QTimer(self)
         timer.timeout.connect(self.advanceProgressBar)
         timer.start(1000)
-
-    # @pyqtSlot()
-    # def decDuty(self):
-    #     print("decrease")
-    #     ser = serial.Serial('COM14')
-    #     ser.write(b'1')  # 1 = duty change
-    #     ser.write(b'2') # 2 = decrease duty
-    #     self.dutyLabel.setText(ser.readline().decode("utf-8"))
-    #     ser.close()
-
-    # @pyqtSlot()
-    # def incDuty(self):
-    #     print("increase")
-    #     ser = serial.Serial('COM14')
-    #     ser.write(b'1')  # 1 = duty change
-    #     ser.write(b'1') # 1 = increase duty
-    #     self.dutyLabel.setText(ser.readline().decode("utf-8"))
-    #     ser.close()
 
     @pyqtSlot()
     def decFreq(self):
@@ -540,7 +537,7 @@ class WidgetGallery(QDialog):
         colCnt = 0
 
         # clear table
-        for i in range(70):
+        for i in range(600):
             print("clearing table")
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(""))
             colCnt = colCnt + 1
@@ -584,7 +581,7 @@ class WidgetGallery(QDialog):
         maxFreq = ''
 
         # if(ser.readline().decode("utf-8") != "ENDSWP"):
-        for i in range(70):
+        for i in range(600):
 
             print("filling table")
             # set freq
@@ -672,9 +669,6 @@ class WidgetGallery(QDialog):
         # print(maxPower)
 
 
-
-
-
     # https://stackoverflow.com/questions/21562485/pyqt-qtabwidget-currentchanged
     @pyqtSlot()  
     def onChange(self): #changed!
@@ -689,11 +683,25 @@ class WidgetGallery(QDialog):
         self.freqLabel.setText('')
         self.dacLabel.setText('')
 
+    @pyqtSlot()  
+    def turnOffPwms(self): #changed!
+        print("turning off PWMS")
+        ser = serial.Serial('COM14')
+        ser.write(b'a')  # 7 = power tracking
+
+    @pyqtSlot()  
+    def turnOnPwms(self): #changed!
+        print("turning on PWMS")
+        ser = serial.Serial('COM14')
+        ser.write(b'b')  # 7 = power tracking
+        ser.close()
+
     @pyqtSlot()
     def readPowerTracking(self):
         print("reading power tracking values")
         ser = serial.Serial('COM14')
         ser.write(b'7')  # 7 = power tracking
+        ser.close()
 
         for i in range(200):
             freq = ser.readline().decode("utf-8")
