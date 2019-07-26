@@ -55,6 +55,12 @@ class WidgetGallery(QDialog):
         self.freqEditLine = QLineEdit()
         self.freqEditLine.resize(100, 32)
 
+        # sweep start and stop freq edit lines
+        self.startFreqEditLine = QLineEdit()
+        self.startFreqEditLine.resize(100, 32)
+        self.stopFreqEditLine = QLineEdit()
+        self.stopFreqEditLine.resize(100, 32)
+        
         # sweep table
         self.sweepTable = QTableWidget()
 
@@ -360,7 +366,7 @@ class WidgetGallery(QDialog):
         # setup table
         self.sweepTable.setRowCount(600);
         self.sweepTable.setColumnCount(7)
-        self.sweepTable.setHorizontalHeaderLabels(['Freq (Hz)', 'Voltage ADC', 'Current ADC', 'Voltage (mV)', 'Current (mA)', 'Z (mOhms)', 'Power (mW)'])
+        self.sweepTable.setHorizontalHeaderLabels(['Freq (Hz)', 'Volt ADC Cnts', 'Curr ADC Cnts', 'Voltage (mV)', 'Current (mA)', 'Z (mOhms)', 'Power (mW)'])
         # self.sweepTable.setItem(0,0, QTableWidgetItem("Freq (Hz)"))
         # self.sweepTable.setItem(0,1, QTableWidgetItem("Voltage ADC"))
         # self.sweepTable.setItem(0,2, QTableWidgetItem("Current ADC"))
@@ -373,8 +379,16 @@ class WidgetGallery(QDialog):
         sweepButton = QPushButton('Sweep', self)
         sweepButton.setFixedWidth(100)
         sweepButton.clicked.connect(self.readSweep)
+        setStartSweepFreqButton = QPushButton('Set Start Freq', self)
+        setStartSweepFreqButton.clicked.connect(self.setStartSweepFreq)
+        setStopSweepFreqButton = QPushButton('Set Stop Freq', self)
+        setStopSweepFreqButton.clicked.connect(self.setStopSweepFreq)
 
         # add button and table
+        layout.addWidget(self.startFreqEditLine)
+        layout.addWidget(setStartSweepFreqButton)
+        layout.addWidget(self.stopFreqEditLine)
+        layout.addWidget(setStopSweepFreqButton)
         layout.addWidget(sweepButton)
         # layout.addLayout(readingsLayout)
         layout.addWidget(QLabel('Table of readings:'))
@@ -408,8 +422,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -426,8 +440,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -443,8 +457,9 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
+        print(' got here dec')
         ser.close()
 
     @pyqtSlot()
@@ -457,12 +472,13 @@ class WidgetGallery(QDialog):
         self.hrfreqLabel.setText(ser.readline().decode("utf-8"))
         # receive adc data as well
         self.vadcLabel.setText(ser.readline().decode("utf-8"))
-        print('got this')
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        print(self.powLabel.text())
+        self.impLabel.setText(ser.readline().decode("utf-8"))
+        print('got here 2') # won't read impedance
         ser.close()
 
     @pyqtSlot()
@@ -472,13 +488,20 @@ class WidgetGallery(QDialog):
         ser.write(b'3')  # 2 = freq change
         ser.write(b'1') # 1 = decrease freq
         self.dacLabel.setText(ser.readline().decode("utf-8"))
+        print("dac: " +self.dacLabel.text())
         # receive adc data as well
         self.vadcLabel.setText(ser.readline().decode("utf-8"))
+        print("vadc: " +self.vadcLabel.text())
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
+        print("iadcLabel: " +self.iadcLabel.text())
         self.voltLabel.setText(ser.readline().decode("utf-8"))
+        print("voltLabel: " +self.voltLabel.text())
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
+        print("currLabel: " +self.currLabel.text())
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        print("powLabel: " +self.powLabel.text())
+        self.impLabel.setText(ser.readline().decode("utf-8"))
+        print("impLabel: " +self.impLabel.text())
         ser.close()
 
     @pyqtSlot()
@@ -493,8 +516,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -506,8 +529,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -522,8 +545,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -568,24 +591,25 @@ class WidgetGallery(QDialog):
         rowCnt = 0
         colCnt = 0
 
-        # read the first false sent values
-        ser.readline().decode("utf-8")
-        ser.readline().decode("utf-8")
-        ser.readline().decode("utf-8")
-        ser.readline().decode("utf-8")
-        ser.readline().decode("utf-8")
-        ser.readline().decode("utf-8")
-        ser.readline().decode("utf-8")
+        # read sweep length
+        sweepLengthStr = ser.readline().decode("utf-8")
+        # sweepLengthStr = sweepLengthStr.strip()
+        print("sweep length: ")
+        sweepLengthStr = sweepLengthStr.replace('\x00','')
+        sweepLengthStr =sweepLengthStr.strip()
+        print(sweepLengthStr)
+        sweepLength = int(sweepLengthStr, 10)
 
         maxPower = 0
         maxFreq = ''
 
-        # if(ser.readline().decode("utf-8") != "ENDSWP"):
-        for i in range(600):
-
+        # MIGHT HAVE TO CHANGE THE STRING MANIPULATION FOR FUTURE CHANGES IN CCS CODE
+        for i in range(sweepLength-1):
             print("filling table")
             # set freq
             freq = ser.readline().decode("utf-8")
+            print(freq)
+            freq = freq[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(freq))
             # increase column count to write into next column
             colCnt = colCnt + 1
@@ -594,7 +618,8 @@ class WidgetGallery(QDialog):
             # For some reason, I can a character from sci char array sent before this, 
             # so have to splice
             vadcStr = ser.readline().decode("utf-8")
-            vadcStr = vadcStr[2:7]
+            print(vadcStr)
+            vadcStr = vadcStr[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(vadcStr))
             # self.vadcLabel.setText(vadcStr)
             # increase column count to write into next column
@@ -602,6 +627,7 @@ class WidgetGallery(QDialog):
 
             # set iadc
             iadc = ser.readline().decode("utf-8")
+            iadc = iadc[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(iadc))
             # self.iadcLabel.setText(iadc)
             # increase column count to write into next column
@@ -609,6 +635,7 @@ class WidgetGallery(QDialog):
 
             # set voltage
             volts = ser.readline().decode("utf-8")
+            volts = volts[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(volts))
             # self.voltLabel.setText(volts)
             # increase column count to write into next column
@@ -616,6 +643,7 @@ class WidgetGallery(QDialog):
 
             # set current
             curr = ser.readline().decode("utf-8")
+            curr = curr[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(curr))
             # self.currLabel.setText(curr)
             # increase column count to write into next column
@@ -623,6 +651,7 @@ class WidgetGallery(QDialog):
 
             # set impedance
             imp = ser.readline().decode("utf-8")
+            imp = imp[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(imp))
             # self.impLabel.setText(imp)
             # increase column count to write into next column
@@ -630,17 +659,22 @@ class WidgetGallery(QDialog):
 
             # set power
             power = ser.readline().decode("utf-8")
+            power = power[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(power))
-            powerAtColStr = power[2:7]
-            FreqAtColStr = freq[2:7]
-            powerInt = int(powerAtColStr)
-            if powerInt > maxPower:
-                maxPower = powerInt
-                maxFreq = FreqAtColStr
+            
+            # TODO: Reimplement below for finding max power quickly
 
-            print(powerAtColStr)
-            print(powerInt)
+            # powerAtColStr = power[2:7]
+            # FreqAtColStr = freq[2:7]
+            # powerInt = int(powerAtColStr)
+            # if powerInt > maxPower:
+            #     maxPower = powerInt
+            #     maxFreq = FreqAtColStr
+
+            # print(powerAtColStr)
+            # print(powerInt)
             # self.powLabel.setText(power)
+
             # increase column count to write into next column
             colCnt = colCnt + 1
 
@@ -740,6 +774,45 @@ class WidgetGallery(QDialog):
 
         # read and update freq label
         self.freqLabel.setText(ser.readline().decode("utf-8"))
+
+        ser.close()
+
+    @pyqtSlot()
+    def setStartSweepFreq(self):
+        ser = serial.Serial('COM14')
+        ser.write(b'c')  # 8 = read and set freq command
+
+        # get text from edit line
+        startFreqStr = self.startFreqEditLine.text()
+
+        # check if string length is valid
+        if len(startFreqStr) == 5:
+            # write start freq char by char
+            ser.write(startFreqStr[0].encode())
+            ser.write(startFreqStr[1].encode())
+            ser.write(startFreqStr[2].encode())
+            ser.write(startFreqStr[3].encode())
+            ser.write(startFreqStr[4].encode())
+
+        ser.close()
+
+    @pyqtSlot()
+    def setStopSweepFreq(self):
+        ser = serial.Serial('COM14')
+        ser.write(b'd')  # 8 = read and set freq command
+
+        # get text from edit line
+        stopFreqStr = self.stopFreqEditLine.text()
+
+        # check if string length is valid
+        if len(stopFreqStr) == 5:
+
+            # send stop freq
+            ser.write(stopFreqStr[0].encode())
+            ser.write(stopFreqStr[1].encode())
+            ser.write(stopFreqStr[2].encode())
+            ser.write(stopFreqStr[3].encode())
+            ser.write(stopFreqStr[4].encode())
 
         ser.close()
 
