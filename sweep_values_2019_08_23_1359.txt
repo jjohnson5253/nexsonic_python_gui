@@ -1,0 +1,2 @@
+freq,vadc,iadc,volts,curr,imp,pow
+

@@ -32,6 +32,7 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
         QVBoxLayout, QWidget)
 import serial
 import time
+import datetime
 
 class WidgetGallery(QDialog):
     def __init__(self, parent=None):
@@ -582,6 +583,16 @@ class WidgetGallery(QDialog):
     @pyqtSlot()
     def readSweep(self):
         print("reading sweep")
+
+        # create txt file for exporting
+        FORMAT = '%Y_%m_%d_%H%M'
+        path = 'sweep_values'
+        new_path = '%s_%s.txt' % (path, datetime.datetime.now().strftime(FORMAT))
+        f = open(new_path,"w+")
+        # write header
+        f.write("freq,vadc,iadc,volts,curr,imp,pow\n\n")
+
+        # open serial port
         ser = serial.Serial(self.COM)
 
         ser.write(b'4')  # 4 = sweep
@@ -628,10 +639,21 @@ class WidgetGallery(QDialog):
         sweepLengthStr = sweepLengthStr.replace('\x00','')
         sweepLengthStr =sweepLengthStr.strip()
         print(sweepLengthStr)
+        print('\n')
         sweepLength = int(sweepLengthStr, 10)
 
         maxPower = 0
         maxFreq = ''
+
+        # sweepValList = [["freq","vadc","iadc","volts","curr","imp","pow"],[]]
+
+        freqList = []
+        vadcList = []
+        iadcList = []
+        voltsList = []
+        currList = []
+        impList = []
+        powList = []
 
         # MIGHT HAVE TO CHANGE THE STRING MANIPULATION FOR FUTURE CHANGES IN CCS CODE
         for i in range(sweepLength-1):
@@ -641,6 +663,7 @@ class WidgetGallery(QDialog):
             print(freq)
             freq = freq[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(freq))
+            freqList.append(freq)
             # increase column count to write into next column
             colCnt = colCnt + 1
 
@@ -651,6 +674,7 @@ class WidgetGallery(QDialog):
             print(vadcStr)
             vadcStr = vadcStr[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(vadcStr))
+            vadcList.append(vadcStr)
             # self.vadcLabel.setText(vadcStr)
             # increase column count to write into next column
             colCnt = colCnt + 1
@@ -659,6 +683,7 @@ class WidgetGallery(QDialog):
             iadc = ser.readline().decode("utf-8")
             iadc = iadc[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(iadc))
+            iadcList.append(iadc)
             # self.iadcLabel.setText(iadc)
             # increase column count to write into next column
             colCnt = colCnt + 1
@@ -667,6 +692,7 @@ class WidgetGallery(QDialog):
             volts = ser.readline().decode("utf-8")
             volts = volts[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(volts))
+            voltsList.append(volts)
             # self.voltLabel.setText(volts)
             # increase column count to write into next column
             colCnt = colCnt + 1
@@ -675,6 +701,7 @@ class WidgetGallery(QDialog):
             curr = ser.readline().decode("utf-8")
             curr = curr[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(curr))
+            currList.append(curr)
             # self.currLabel.setText(curr)
             # increase column count to write into next column
             colCnt = colCnt + 1
@@ -683,6 +710,7 @@ class WidgetGallery(QDialog):
             imp = ser.readline().decode("utf-8")
             imp = imp[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(imp))
+            impList.append(imp)
             # self.impLabel.setText(imp)
             # increase column count to write into next column
             colCnt = colCnt + 1
@@ -691,6 +719,7 @@ class WidgetGallery(QDialog):
             power = ser.readline().decode("utf-8")
             power = power[2:8]
             self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(power))
+            powList.append(power)
             
             # TODO: Reimplement below for finding max power quickly
 
@@ -719,6 +748,10 @@ class WidgetGallery(QDialog):
         self.maxPowerLabel.setText(str(maxPower))
         self.maxFreqlabel.setText(maxFreq)
         ser.close()
+
+        # write to file
+        for i in range(sweepLength-1):
+            f.write(freqList[i] + ',' + vadcList[i] + ',' + iadcList[i]  + ',' + voltsList[i] + ',' + currList[i] + ',' + impList[i] + ',' + powList[i] + '\n')
 
         # maxPower = 0
         # for i in range(70):
