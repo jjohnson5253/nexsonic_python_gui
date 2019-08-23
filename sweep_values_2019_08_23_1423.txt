@@ -1,4 +1,4 @@
-freq,vadc,iadc,volts,curr,imp,pow
+  freq,  vadc,  iadc, volts,  curr,   imp,   pow
 
  56001,     0,     0,     0,     0,     0,     0
  56002,     0,     0,     0,     0,     0,     0

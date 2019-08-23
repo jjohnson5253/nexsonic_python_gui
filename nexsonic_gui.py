@@ -453,8 +453,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.powLabel.setText(ser.readline().decode("utf-8"))
         self.impLabel.setText(ser.readline().decode("utf-8"))
+        self.powLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -471,8 +471,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.powLabel.setText(ser.readline().decode("utf-8"))
         self.impLabel.setText(ser.readline().decode("utf-8"))
+        self.powLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -488,8 +488,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.powLabel.setText(ser.readline().decode("utf-8"))
         self.impLabel.setText(ser.readline().decode("utf-8"))
+        self.powLabel.setText(ser.readline().decode("utf-8"))
         print(' got here dec')
         ser.close()
 
@@ -506,6 +506,7 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
         print(self.powLabel.text())
         self.impLabel.setText(ser.readline().decode("utf-8"))
@@ -547,8 +548,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.powLabel.setText(ser.readline().decode("utf-8"))
         self.impLabel.setText(ser.readline().decode("utf-8"))
+        self.powLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -556,12 +557,13 @@ class WidgetGallery(QDialog):
         print("reading adc")
         ser = serial.Serial(self.COM)
         ser.write(b'5')  # 5 = read adcs
+        # receive adc data as well
         self.vadcLabel.setText(ser.readline().decode("utf-8"))
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.powLabel.setText(ser.readline().decode("utf-8"))
         self.impLabel.setText(ser.readline().decode("utf-8"))
+        self.powLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -572,12 +574,13 @@ class WidgetGallery(QDialog):
         self.freqLabel.setText(ser.readline().decode("utf-8"))
         self.dacLabel.setText(ser.readline().decode("utf-8"))
         # receive adc data as well
+        # receive adc data as well
         self.vadcLabel.setText(ser.readline().decode("utf-8"))
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.powLabel.setText(ser.readline().decode("utf-8"))
         self.impLabel.setText(ser.readline().decode("utf-8"))
+        self.powLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -590,7 +593,7 @@ class WidgetGallery(QDialog):
         new_path = '%s_%s.txt' % (path, datetime.datetime.now().strftime(FORMAT))
         f = open(new_path,"w+")
         # write header
-        f.write("freq,vadc,iadc,volts,curr,imp,pow\n\n")
+        f.write("  freq,  vadc,  iadc, volts,  curr,   imp,   pow\n\n")
 
         # open serial port
         ser = serial.Serial(self.COM)
