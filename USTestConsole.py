@@ -21,7 +21,10 @@
 #       https://build-system.fman.io/pyqt5-tutorial
 #
 # To create standalone executable run:
-#           pyinstaller.exe --onefile --windowed app.py
+#           pyinstaller.exe --onefile --windowed --icon=nexsonic_icon.ico USTestConsole.py
+#
+#			(first need to run pip install pyinstaller)
+#			for ref: https://stackoverflow.com/questions/34453458/how-to-use-pyinstaller/34454262
 #
 
 from PyQt5.QtCore import QDateTime, Qt, QTimer, pyqtSlot
@@ -453,8 +456,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -471,8 +474,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -488,8 +491,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         print(' got here dec')
         ser.close()
 
@@ -506,8 +509,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         print(self.powLabel.text())
         ser.close()
 
@@ -546,8 +549,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -560,8 +563,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -577,8 +580,8 @@ class WidgetGallery(QDialog):
         self.iadcLabel.setText(ser.readline().decode("utf-8"))
         self.voltLabel.setText(ser.readline().decode("utf-8"))
         self.currLabel.setText(ser.readline().decode("utf-8"))
-        self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
+        self.impLabel.setText(ser.readline().decode("utf-8"))
         ser.close()
 
     @pyqtSlot()
@@ -707,6 +710,12 @@ class WidgetGallery(QDialog):
             # increase column count to write into next column
             colCnt = colCnt + 1
 
+            # set power
+            power = ser.readline().decode("utf-8")
+            power = power[2:8]
+            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(power))
+            powList.append(power)
+
             # set impedance
             imp = ser.readline().decode("utf-8")
             imp = imp[2:8]
@@ -715,12 +724,6 @@ class WidgetGallery(QDialog):
             # self.impLabel.setText(imp)
             # increase column count to write into next column
             colCnt = colCnt + 1
-
-            # set power
-            power = ser.readline().decode("utf-8")
-            power = power[2:8]
-            self.sweepTable.setItem(rowCnt,colCnt, QTableWidgetItem(power))
-            powList.append(power)
             
             # TODO: Reimplement below for finding max power quickly
 
