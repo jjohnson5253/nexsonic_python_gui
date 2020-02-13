@@ -509,14 +509,12 @@ class WidgetGallery(QDialog):
         self.impLabel.setText(ser.readline().decode("utf-8"))
         self.powLabel.setText(ser.readline().decode("utf-8"))
         print(self.powLabel.text())
-        self.impLabel.setText(ser.readline().decode("utf-8"))
-        print('got here 2') # won't read impedance
         ser.close()
 
     @pyqtSlot()
     def decDac(self):
         print("decrease")
-        ser = serial.Serial('COM14')
+        ser = serial.Serial(self.COM)
         ser.write(b'3')  # 2 = freq change
         ser.write(b'1') # 1 = decrease freq
         self.dacLabel.setText(ser.readline().decode("utf-8"))
