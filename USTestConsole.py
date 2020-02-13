@@ -201,7 +201,7 @@ class WidgetGallery(QDialog):
         self.setLayout(mainLayout)
 
         # set window title
-        self.setWindowTitle("Nexsonic")
+        self.setWindowTitle("Nexsonic Ultrasonic Test Console")
 
         # set style
         self.changeStyle('WindowsVista')
